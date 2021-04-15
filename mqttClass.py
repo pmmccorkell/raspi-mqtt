@@ -1,19 +1,57 @@
+#
+# Streamlined class of paho-mqtt for raspi
+# US Naval Academy
+# Robotics and Control TSD
+# Patrick McCorkell
+# April 2021
+#
+
 import paho.mqtt.client as MQTT
 from random import randint
 from json import dumps
 from math import pi as pie
-from cmath import exp as trueExp
+
+#USAGE:
+# from mqttClass import mqttClass
+#
+# server = 'the broker's IP'
+# mqtt = mqttClass(host_IP=server,subscriptions=YOUR_DICTIONARY_OF_SUBSCRIPTIONS)
+#	  if connecting to Adafruit IO or 3rd party with username and pass:
+#		   mqtt = mqttClass(host_IP=server, username='YOUR IO USER', key='YOUR IO KEY',subscriptions=YOUR_DICTIONARY_OF_SUBSCRIPTIONS)
+# mqtt.connect()
+# 
+#
+# To Subscribe:
+#
+# 1. Write a function with the code you want to execute when the subscription is received.
+# def function_name(topic,message):
+#	 ......
+#	 your code for subscription
+#	 ......
+#
+# 2. Create a dictionary['topic_name':function_name]
+# Pass this dictionary at instantiation, subscriptions=YOUR_DICTIONARY_OF_SUBSCRIPTIONS)
+#
+#
+#
+# To Publish:
+# mqtt.pub('topic','message')
+#
+#
+
 
 
 class mqttClass:
-	def __init__(self,host_IP='192.168.5.4',user=None,key=None,subscriptions=None):
-		# The set of RigidBody objects which will be published.
-		# Starts empty. See 'objectList' for the totality of possible contents.
-		dynamicList = set()
+	def __init__(self,host_IP='192.168.5.4',username=None,key=None,subscriptions=None):
 
-		############################################################
-		################# MQTT CONNECTION HANDLING #################
-		############################################################
+		self.clientname="raspi"+str(randint(1000,9999))
+		self.mqtt_server=host_IP
+		self.is_connected=0
+		self.client=MQTT.Client(self.clientname)
+		if user is not None:
+			self.client.username_pw_set(username=user,password=key)
+
+		self.topic_list=set()
 
 		topic_defaults={
 			'test':self.test_function,
@@ -25,20 +63,13 @@ class mqttClass:
 		else:
 			self.topic_outsourcing = topic_defaults
 
-		self.clientname="raspi"+str(randint(1000,9999))
-		self.server=host_IP
-		self.is_connected=0
-		self.client=MQTT.Client(self.clientname)
-		if user is not None:
-			self.client.username_pw_set(username=user,password=key)
 		self.client.on_message = self.callback_handler
-
 
 	def connect(self):
 		if not self.is_connected:
-			self.client.connect(self.server)
+			self.client.connect(self.mqtt_server)
 			self.client.loop_start()
-			print("Connected to "+self.server)
+			print("Connected to "+self.mqtt_server)
 			self.is_connected=1
 			self.auto_subscribe()
 
@@ -50,45 +81,51 @@ class mqttClass:
 		self.is_connected=0
 		print("Terminated python MQTT")
 
+	def __str__(self):
+		return str(self.mqtt_server)
+
+
 
 	#####################################################################
-	####################### SUBSCRIPTION CALLBACK #######################
+	####################### SUBSCRIPTION HANDLING #######################
 	#####################################################################
+
+	def sub(self,topic):
+		self.topic_list.add(topic)
+		self.mqtt.subscribe(topic)
 
 	def auto_subscribe(self):
+		# print(self.topic_outsourcing)
 		for k in self.topic_outsourcing:
-			self.client.subscribe(k)
-			# print('subscribed to +' + str(k))
+			self.sub(k)
+			print('subscribed to +' + str(k))
 
-	def test_function(self,message):
-		print('test: ')
-		print(message)
+	def test_function(self,top,msg):
+		print()
+		print('tes topic rx: '+str(top))
+		print(msg)
+		print()
 
 	# Redirect from MQTT callback function.
 	# Error checking.
-	def default_function(self,whatever):
-		lennon=1j
-		nothingtoseehere=trueExp(lennon*pie)
-		print(nothingtoseehere)
-		print("PYTHON >> Discarding. No filter for topic "+str(whatever.topic)+" discovered.")
+	def default_function(self,top,whatever):
+		print("PYTHON >> Discarding data: "+str(whatever)+".")
+		print("No filter for topic "+str(top)+" discovered.")
 
 	# Callback for MQTT subscriptions.
 	# Called as Interrupt by paho-mqtt when a subscribed topic is received.
 	# 
 	def callback_handler(self,client,userdata,message):
 		topicFunction=self.topic_outsourcing.get(message.topic,self.default_function)
-		topicFunction(message)
+		topicFunction(message.topic,message.payload)
 
 
 	############################################################
-	####################### PUBLISHER ##########################
+	####################### PUBLISHING #########################
 	############################################################
 
 		
-	# Called from Matlab.
-	# Accepts 1 RigidBody struct at a time, passed in as a python dict.
-	# Publishes the objects that match dynamicList from the RigidBody struct.
-	def publish(self,topic,data):
+	def pub(self,topic,data):
 
 		if type(data) is dict:
 			msg = dumps(data)
@@ -99,7 +136,6 @@ class mqttClass:
 		# Publish json-ified msg to MQTT broker.
 		self.client.publish(topic,msg)
 		# print('published msg: '+dumps(msg) + ' on topic: '+dynamictopic)
-
 
 
 
