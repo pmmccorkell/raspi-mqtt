@@ -39,8 +39,6 @@ from math import pi as pie
 #
 #
 
-
-
 class mqttClass:
 	def __init__(self,host_IP='192.168.5.4',username=None,key=None,subscriptions=None):
 
@@ -48,7 +46,7 @@ class mqttClass:
 		self.mqtt_server=host_IP
 		self.is_connected=0
 		self.client=MQTT.Client(self.clientname)
-		if user is not None:
+		if username is not None:
 			self.client.username_pw_set(username=user,password=key)
 
 		self.topic_list=set()
