@@ -47,7 +47,7 @@ class mqttClass:
 		self.is_connected=0
 		self.client=MQTT.Client(self.clientname)
 		if username is not None:
-			self.client.username_pw_set(username=user,password=key)
+			self.client.username_pw_set(username,key)
 
 		self.topic_list=set()
 
