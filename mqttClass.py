@@ -13,7 +13,14 @@ from math import pi as pie
 
 #USAGE:
 # from mqttClass import mqttClass
-#
+# YOUR_DICTIONARY_OF_SUBSCRIPTIONS = {
+	# 'topic1' : function_name_1,
+	# 'topic2' : function_name_2,
+	# ...
+	# ...
+	# ...
+# }
+
 # server = 'the broker's IP'
 # mqtt = mqttClass(host_IP=server,subscriptions=YOUR_DICTIONARY_OF_SUBSCRIPTIONS)
 #	  if connecting to Adafruit IO or 3rd party with username and pass:
@@ -24,7 +31,7 @@ from math import pi as pie
 # To Subscribe:
 #
 # 1. Write a function with the code you want to execute when the subscription is received.
-# def function_name(topic,message):
+# def function_name_1(topic,message):
 #	 ......
 #	 your code for subscription
 #	 ......
