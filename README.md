@@ -1,5 +1,8 @@
-#USAGE:
+# USAGE:
 # from mqttClass import mqttClass
+# 
+# Requires paho-mqtt:
+# sudo apt-get install python3-paho-mqtt
 #
 # server = 'the broker's IP'
 # mqtt = mqttClass(host_IP=server,subscriptions=YOUR_DICTIONARY_OF_SUBSCRIPTIONS)
