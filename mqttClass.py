@@ -97,7 +97,7 @@ class mqttClass:
 
 	def sub(self,topic):
 		self.topic_list.add(topic)
-		self.mqtt.subscribe(topic)
+		self.client.subscribe(topic)
 
 	def auto_subscribe(self):
 		# print(self.topic_outsourcing)
@@ -121,7 +121,7 @@ class mqttClass:
 	# Called as Interrupt by paho-mqtt when a subscribed topic is received.
 	# 
 	def callback_handler(self,client,userdata,message):
-		topicFunction=self.topic_outsourcing.get(message.topic,self.default_function)
+		topicFunction=self.topic_outsourcing.get(message.topic, self.default_function)
 		topicFunction(message.topic,message.payload)
 
 
