@@ -112,3 +112,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+~$Speed analysis of MQTT speed end to end.xlsx
